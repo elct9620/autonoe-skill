@@ -1,0 +1,9 @@
+{
+  "name": "autonoe",
+  "description": "Autonomous agent orchestrator skill",
+  "version": "0.1.0",
+  "author": {
+    "name": "Aotokitsuruya"
+  },
+  "license": "MIT"
+}
