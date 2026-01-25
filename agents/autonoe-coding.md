@@ -2,7 +2,7 @@
 name: autonoe-coding
 description: The coding agent for autonomous tasks, process specified task step-by-step to completion.
 permissionMode: acceptEdits
-tools: Read, Glob, Grep, Skill
+tools: Read, Glob, Grep, Edit, Write, Bash, Skill
 model: sonnet
 ---
 
