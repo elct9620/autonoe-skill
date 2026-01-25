@@ -73,3 +73,16 @@ Key fields:
 ### Plugin Namespacing
 
 Plugin skills use `/autonoe:skill-name` format. Use `${CLAUDE_PLUGIN_ROOT}` for absolute paths in hooks and MCP configs.
+
+## Commit Message Guidelines
+
+Plugin Markdown files (`commands/`, `skills/`, `agents/`) are **functional definitions**, not documentation.
+
+| Change Type | Prefix | Example |
+|------------|--------|---------|
+| New skill/command | `feat:` | `feat: add git-commit command` |
+| Skill behavior change | `fix:` | `fix: improve error handling in skill` |
+| Skill prompt refinement | `refactor:` | `refactor: clarify instructions` |
+| Actual documentation (README, etc.) | `docs:` | `docs: update installation guide` |
+
+**Important**: Avoid using `docs:` for changes to skill/command Markdown files. These files define behavior and should use `feat:`, `fix:`, or `refactor:` based on the nature of the change.
