@@ -126,6 +126,10 @@ Ask the user if they want to start executing tasks. If confirmed, use sub agent 
 
 **IMPORTANT**: Must use sub agent `$2` for executing tasks, do NOT execute tasks directly in this session.
 
+**CRITICAL - Sequential Execution:**
+
+Tasks MUST be executed one at a time, sequentially. Do NOT run multiple tasks in parallel. Wait for the current task to complete before starting the next one. This prevents file editing conflicts when multiple tasks modify the same files.
+
 ---
 
 **REMEMBER:** Focus on quality over speed. Take your time to create well-defined tasks with clear acceptance criteria.
