@@ -1,7 +1,7 @@
 ---
 name: autonoe-plan
 description: "Create a detailed deliverable task list from specifications file"
-allowed-tools: ["Write(.autonoe-node.md)", "Skill"]
+allowed-tools: Write(.autonoe-node.md), Skill
 argument-hint: "[SPEC.md] [--agent autonoe-coding]"
 ---
 
