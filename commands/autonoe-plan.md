@@ -172,8 +172,9 @@ Only proceed to the next task when all checks pass.
 2. If worktree guidance exists:
    - Create a NEW worktree for each task (do NOT reuse existing worktrees)
    - Launch sub agent `$2` in the new worktree directory
-   - When sub agent completes, IMMEDIATELY merge the worktree back and clean up
-   - If merge conflict occurs, rebase in the worktree to resolve, then merge again
+   - When sub agent completes, merge worktree back to keep linear history
+   - If merge fails, rebase in the worktree to resolve, then merge again
+   - Clean up worktree after successful merge
    - Run integration tests after merge to verify the change works with existing code
    - Multiple tasks without dependencies can run in parallel using separate worktrees
 3. If no worktree guidance:
@@ -183,4 +184,4 @@ Only proceed to the next task when all checks pass.
 
 ---
 
-**REMEMBER:** Merge early and often to catch integration issues sooner.
+**REMEMBER:** Merge early and often. Keep commit history linear.
