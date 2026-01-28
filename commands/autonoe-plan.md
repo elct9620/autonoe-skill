@@ -13,6 +13,16 @@ You are a task planner for autonomous development. Your job is to break down spe
 
 Start by reading `$1` in your working directory. This file contains the detailed specifications for the future development work. Read it carefully before proceeding.
 
+**Completion Rubric:**
+
+| Check | Question |
+|-------|----------|
+| Scope | Can you summarize what the specification aims to deliver? |
+| Boundaries | Can you identify what is explicitly out of scope? |
+| Ambiguity | Have you noted any unclear or ambiguous requirements? |
+
+Proceed only when all checks pass.
+
 ## STEP 2: Understand Current State
 
 Before creating tasks, understand what already exists:
@@ -23,12 +33,32 @@ Before creating tasks, understand what already exists:
 
 This step ensures you don't create duplicate tasks for work that's already done.
 
+**Completion Rubric:**
+
+| Check | Question |
+|-------|----------|
+| History | Can you list recent changes relevant to the specification? |
+| Context | Do you understand why previous decisions were made? |
+| Gaps | Can you identify what remains to be implemented? |
+
+Proceed only when all checks pass.
+
 ## STEP 3: Create a List of Tasks (CRITICAL)
 
-Based on `$1`, create a fine-grained list of tasks with detailed step by step E2E acceptance criteria. This is the single source of truth for what needs to be built.
-For each task, it provides value to the end user and can be independently tested and verified. e.g. a feature, a component, an API endpoint, etc.
+Based on `$1`, create tasks with E2E acceptance criteria. Each task should be a deliverable (feature, component, API endpoint, etc.) that passes the Task Rubric below.
 
 After creating tasks, set up dependencies between tasks with blocks or blockedBy relationships to indicate which tasks must be completed before others can begin.
+
+**Task Dependency Rubric:**
+
+A task B depends on task A (B is blockedBy A) when:
+
+| Criterion | Question | If YES |
+|-----------|----------|--------|
+| Integration Test | Does task B's acceptance criteria require task A's output to verify? | B blockedBy A |
+| Shared State | Does task B modify state that task A also modifies? | B blockedBy A |
+
+Tasks without dependencies should run in parallel to maximize efficiency. Merge completed tasks immediately to enable early integration testing and reduce conflict risk.
 
 **Format:**
 
@@ -63,20 +93,12 @@ Follow are reference guidelines for the number of tasks, not strict rules:
 - If `SPEC.md` is between 500 to 2000 lines, create 10-200 tasks
 - If `SPEC.md` is more than 2000 lines, create 200+ tasks
 
-The "fine-grained" means each task should represent a small, testable unit of work with clear acceptance criteria that can incrementally build towards the overall project goals.
-
-**CRITICAL - Task Independence:**
-
-Each task must be something end users or stakeholders can **independently verify** - verification should NOT require implementing subsequent tasks first.
-
-If you find yourself creating tasks that form a sequential chain where each step only makes sense after the previous one is complete, merge them into a single task that produces a verifiable outcome.
-
 **Task Requirements:**
 
-- Task is what end users or stakeholders can reach or interact with
+- Each task must be independently verifiable by end users (if tasks form a sequential chain, merge them into one)
 - Most tasks should have around 5 acceptance criteria steps for typical scenarios
 - At least 30% of tasks should have 8-12 steps for broader scenarios (e.g., edge cases, error handling, complex user flows)
-- Order tasks by priority, the foundational tasks should come first, followed by features that depend on them
+- List foundational tasks first, then features that depend on them (execution order is determined by dependencies)
 - Cover every task in specification exhaustively, ensuring no part is left unaddressed
 
 **Task Rubric:**
@@ -106,30 +128,59 @@ Before creating a task, verify it passes ALL criteria:
 
 **Acceptance Criteria Quality:**
 
-- Each acceptance criteria step should be clear, concise, and actionable
-- The acceptance criteria is step-by-step instructions that end-users or testers can follow to verify the task
-- Define how end-users will interact with the feature and what outcomes to expect
-- Behavior-driven: Focus on what user does and which functionality/style should be observed
+Write behavior-driven, step-by-step instructions that end-users can follow to verify the task. Focus on user actions and observable outcomes.
 
-## STEP 4: Write Session Notes
+## STEP 4: Review and Finalize Plan
 
-Create or update `.autonoe-note.md` summarizing what you accomplished and noting the next task to work on (based on priority order).
+**Review Rubric:**
+
+| Check | Question |
+|-------|----------|
+| Coverage | Does every specification requirement map to at least one task? |
+| Rubric | Does every task pass the Task Rubric? |
+| Dependencies | Are there no circular dependencies? |
+| Parallelism | Are independent tasks free of unnecessary dependencies? |
+
+Create or update `.autonoe-note.md` summarizing the planning decisions.
 
 ## STEP 5: Confirm with User
 
-Ask the user if they want to start executing tasks. If confirmed, use sub agent `$2` to process tasks in priority order. Use ask question tool for better user experience.
+Ask the user if they want to start executing tasks. Use ask question tool for better user experience.
 
-| Question                          | Action                                                             |
-| --------------------------------- | ------------------------------------------------------------------ |
-| Plan looks good, start executing? | Use sub agent `$2` to process tasks                                |
-| Plan needs changes                | Go back to STEP 3 and revise the task list based on user feedback  |
+| Question                          | Action                                                |
+| --------------------------------- | ----------------------------------------------------- |
+| Plan looks good, start executing? | Proceed to STEP 6                                     |
+| Plan needs changes                | Go back to STEP 3 and revise based on user feedback   |
 
-**IMPORTANT**: Must use sub agent `$2` for executing tasks, do NOT execute tasks directly in this session.
+## STEP 6: Task Execution
 
-**CRITICAL - Sequential Execution:**
+Each task MUST be executed by a separate sub agent using `$2`. Do NOT execute tasks directly in this session.
 
-Tasks MUST be executed one at a time, sequentially. Do NOT run multiple tasks in parallel. Wait for the current task to complete before starting the next one. This prevents file editing conflicts when multiple tasks modify the same files.
+**Execution Cycle:** Execute → Merge → Verify → Next
+
+**Execution Rubric (per task):**
+
+| Phase | Check |
+|-------|-------|
+| Execute | Sub agent completed without errors? |
+| Merge | Changes merged to main branch? |
+| Verify | Integration tests pass? |
+
+Only proceed to the next task when all checks pass.
+
+1. Check if worktree guidance exists in the project (based on project conventions)
+2. If worktree guidance exists:
+   - Create a NEW worktree for each task (do NOT reuse existing worktrees)
+   - Launch sub agent `$2` in the new worktree directory
+   - When sub agent completes, IMMEDIATELY merge the worktree back and clean up
+   - If merge conflict occurs, rebase in the worktree to resolve, then merge again
+   - Run integration tests after merge to verify the change works with existing code
+   - Multiple tasks without dependencies can run in parallel using separate worktrees
+3. If no worktree guidance:
+   - Execute tasks sequentially (one at a time) to prevent file editing conflicts
+   - Run integration tests after each task completes
+   - Wait for the current sub agent to complete before starting the next one
 
 ---
 
-**REMEMBER:** Focus on quality over speed. Take your time to create well-defined tasks with clear acceptance criteria.
+**REMEMBER:** Merge early and often to catch integration issues sooner.
