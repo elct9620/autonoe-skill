@@ -47,13 +47,9 @@ Select roles based on feature type. Spawn required roles first, then add optiona
 
 ## Skills
 
-Before starting the task, review available skills for current environment and assign correct skills to each team member to maximize efficiency.
-
-**IMPORTANT:** Always use skills before starting the task to ensure the best possible outcome if the skill is available.
+Before starting the task, review and activate available skills for each team member to maximize efficiency.
 
 ## Task Breakdown
-
-Each team member should focus on their own area of expertise, but collaboration and communication are key to ensure the task is completed successfully.
 
 Verify each subtask against the following principles:
 
@@ -76,7 +72,7 @@ A single feature should be completable within one member's context budget. If a 
 | By data entity          | Feature touches multiple independent data models         |
 | By happy path vs edge case | Core behavior and error handling can be delivered separately |
 
-Each split feature must deliver independent value — no partial features that only work when combined.
+Each split feature must deliver independent value.
 
 ### Feature Prioritization
 
@@ -93,9 +89,6 @@ Process highest priority first. When tied, prefer the feature that unblocks othe
 
 For each feature, assign tasks to team members with following guidelines:
 
-- Co-work with other members, including pair programming, joint reviews, and collaborative testing.
-- Members within the same feature may communicate directly (QA↔Developer, Designer↔Developer, Reviewer↔Developer). Team lead maintains visibility through idle notification peer DM summaries.
-- Escalate to team lead only for cross-feature impacts or major blockers.
 - All delegation and coordination uses SendMessage only. Do NOT write `.autonoe-note.md` — that file is for the single-agent `autonoe-plan` workflow, not for teams.
 - After delegating, wait for members to report via message. Do NOT poll — member idle is normal.
 
@@ -116,8 +109,6 @@ For each feature, assign tasks to team members with following guidelines:
 | Gate completion (Review/QA result) | Notify next gate role + team lead |
 
 ### Delegation Checklist
-
-Verify before each assignment:
 
 | Check | Question |
 |-------|----------|
@@ -144,7 +135,7 @@ Three layers for new member onboarding:
 
 ## Feature Readiness
 
-Before a feature enters the work queue, it must pass the Definition of Ready. Features that fail any check must be refined first.
+Features must pass all Definition of Ready checks before entering the work queue.
 
 | Check     | Question                                                                 |
 |-----------|--------------------------------------------------------------------------|
@@ -155,7 +146,7 @@ Before a feature enters the work queue, it must pass the Definition of Ready. Fe
 
 ## Quality Gates
 
-Each feature must pass through Reviewer and QA gates before completion. The gate order is: Developer completes → Reviewer reviews → QA verifies.
+Gate order: Developer → Reviewer → QA.
 
 ### Gate Result Handling
 
@@ -257,9 +248,9 @@ After each feature completes, review remaining features and adjust the backlog a
 
 <procedure name="main">
     <parameter name="task_description" type="string" required="true">The description of the task to be completed by the team.</parameter>
-    <step>1. <execute name="overview">$task_description</execute> to gather initial insights about the task.</step>
-    <step>2. <execute name="task_breakdown">$overview</execute> to create a detailed plan of action.</step>
-    <step>3. <execute name="active-skills">$overview</execute> to identify and activate necessary skills for the task.</step>
+    <step>1. <execute name="overview">$task_description</execute></step>
+    <step>2. <execute name="task_breakdown">$overview</execute></step>
+    <step>3. <execute name="active-skills">$overview</execute></step>
     <step>4. create a team per Team Composition guidelines</step>
     <step>5. aggregate subtasks by feature, set $features</step>
     <step>6. prioritize $features per Feature Prioritization table — process highest priority first</step>
