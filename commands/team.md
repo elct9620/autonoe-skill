@@ -37,6 +37,18 @@ Select roles based on feature type. Spawn required roles first, then add optiona
 | Major feature / new project     | Architect, Developer, Reviewer, QA    | Designer, Documenter        |
 | UI feature                      | Developer, Designer, Reviewer, QA     | Documenter                  |
 
+### Agent Type
+
+Determine `subagent_type` for each team member by the following precedence:
+
+| Priority | Source | Example |
+|----------|--------|---------|
+| 1 | User instruction in conversation | "Use autonoe-coding for Developer" |
+| 2 | Project settings in CLAUDE.md | Role-to-agent mapping defined by project |
+| 3 | Default | `general-purpose` |
+
+Use the highest priority source available. If no user instruction or project setting specifies an agent for a role, use `general-purpose`.
+
 ### Optional Role Triggers
 
 | Optional Role | Add When |
@@ -227,7 +239,7 @@ After each feature completes, review remaining features and adjust the backlog a
 <function name="member-rotation">
     <description>Check member feature counts and rotate members at limit per Member Lifecycle rules.</description>
     <step>1. check each member's completed feature count against Member Lifecycle limits.</step>
-    <step>2. for members at limit: obtain summary, send shutdown, spawn replacement per Context Handoff layers.</step>
+    <step>2. for members at limit: obtain summary, send shutdown, spawn replacement per Context Handoff layers and Agent Type guidelines.</step>
 </function>
 
 <function name="feature-assignment">
@@ -251,7 +263,7 @@ After each feature completes, review remaining features and adjust the backlog a
     <step>1. <execute name="overview">$task_description</execute></step>
     <step>2. <execute name="task_breakdown">$overview</execute></step>
     <step>3. <execute name="active-skills">$overview</execute></step>
-    <step>4. create a team per Team Composition guidelines</step>
+    <step>4. create a team per Team Composition and Agent Type guidelines</step>
     <step>5. aggregate subtasks by feature, set $features</step>
     <step>6. prioritize $features per Feature Prioritization table — process highest priority first</step>
     <step>7. validate each feature against Feature Readiness — refine any that fail</step>
