@@ -127,6 +127,7 @@ For each feature, assign tasks to team members with following guidelines:
 | Deliverable | Expected deliverable is clear? |
 | Context | Sufficient context provided (file paths, prior summaries)? |
 | DoD | Includes Definition of Done checklist? |
+| Skills | Relevant skills from active-skills result included in message? |
 
 ## Member Lifecycle
 
@@ -245,9 +246,8 @@ After each feature completes, review remaining features and adjust the backlog a
 <function name="feature-assignment">
     <description>Assign a feature to team members per Delegation Checklist and activate skills.</description>
     <parameter name="feature" type="string" required="true">The feature to assign.</parameter>
-    <step>1. verify assignment against Delegation Checklist (Deliverable, Context, DoD).</step>
-    <step>2. activate matching skills for assigned members per active-skills result.</step>
-    <step>3. delegate via SendMessage — members may communicate peer-to-peer within the feature.</step>
+    <step>1. verify assignment against Delegation Checklist (Deliverable, Context, DoD, Skills).</step>
+    <step>2. delegate via SendMessage — include matched skills with invocation instructions so each member knows which skills to use. Members may communicate peer-to-peer within the feature.</step>
 </function>
 
 <function name="quality-gate">
