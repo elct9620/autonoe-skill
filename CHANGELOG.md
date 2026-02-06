@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/elct9620/autonoe-skill/compare/v0.3.0...v0.4.0) (2026-02-06)
+
+
+### Features
+
+* **commands:** add agile feature team practices to team command ([2793742](https://github.com/elct9620/autonoe-skill/commit/2793742de433f52d1e69150e4e009b568b77040d))
+
 ## [0.3.0](https://github.com/elct9620/autonoe-skill/compare/v0.2.0...v0.3.0) (2026-02-06)
 
 
