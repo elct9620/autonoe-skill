@@ -20,11 +20,11 @@ According to the task necessary, pick the appropriate members from the following
 | Role              | Description                                          | Special Notes                                                                             |
 |-------------------|------------------------------------------------------|-------------------------------------------------------------------------------------------|
 | Architect         | Designing the overall structure and plan.            | Assist before development starts, e.g. new project or major feature.                      |
-| Developer         | Rriting and maintaining code.                        | Test should be included in development phase.                                             |
+| Developer         | Writing and maintaining code.                        | Test should be included in development phase.                                             |
 | Quality Assurance | Ensuring the quality of outcomes.                    | QA must test E2E in early stage, reject RD even unit test pass but cannot test like user. |
 | Designer          | Creating UI/UX designs.                              | Follow design system if available.                                                        |
 | Documenter        | Creating and maintaining documentation.              | When relevant code is changed, documentation must be updated accordingly.                 |
-| Reviewer          | Responsible for reviewing code and ensuring quality. | N/A                                                                                       |
+| Reviewer          | Responsible for reviewing code and ensuring quality. | Reviews after Developer commits, before QA final verification.                            |
 
 ## Skills
 
@@ -39,7 +39,7 @@ Each team member should focus on their own area of expertise, but collaboration 
 When breaking down the task, consider the following aspects:
 
 - Each subtask should be clearly defined with deliverable outcomes.
-- Never re-assign subtasks to different team members once assigned.
+- Prefer keeping original assignments, but when a member is blocked and reasonable attempts have failed, re-assign or spawn a new agent.
 - Delivery early and often, with regular check-ins to ensure progress is being made.
 - Minimize dependencies between subtasks to avoid bottlenecks, work as Kanban style.
 
@@ -50,9 +50,70 @@ For example, create "RD: Feature X", "QA: Feature X", "Doc: Feature X" for featu
 For each feature, assign tasks to team members with following guidelines:
 
 - Co-work with other members, including pair programming, joint reviews, and collaborative testing.
-- Only report progress and blockers to team lead, avoid unnecessary communication.
+- Members within the same feature may communicate directly (QA↔Developer, Designer↔Developer, Reviewer↔Developer). Team lead maintains visibility through idle notification peer DM summaries.
+- Escalate to team lead only for cross-feature impacts or major blockers.
 - All delegation and coordination uses SendMessage only. Do NOT write `.autonoe-note.md` — that file is for the single-agent `autonoe-plan` workflow, not for teams.
 - After delegating, wait for members to report via message. Do NOT poll — member idle is normal.
+
+### Communication Routing
+
+| Situation | Action |
+|-----------|--------|
+| Intra-feature collaboration (bugs, interface, details) | Members communicate directly |
+| Cross-feature impact or major blocker | Escalate to team lead |
+| Gate completion (Review/QA result) | Notify next gate role + team lead |
+
+### Delegation Checklist
+
+Verify before each assignment:
+
+| Check | Question |
+|-------|----------|
+| Deliverable | Expected deliverable is clear? |
+| Context | Sufficient context provided (file paths, prior summaries)? |
+| DoD | Includes Definition of Done checklist? |
+
+## Member Lifecycle
+
+Each member should handle at most 2 features to prevent context degradation during long-running sessions.
+
+| Completed Features | Action |
+|--------------------|--------|
+| < 2 | Assign normally |
+| = 2 and pending features remain | Obtain summary → shutdown → spawn new member |
+
+### Context Handoff
+
+Three layers for new member onboarding:
+
+1. Outgoing member summary — before shutdown, produce a brief summary (completed items, known issues, recommendations).
+2. Git history — new member reviews `git log`/`git diff` to understand prior changes.
+3. Team lead delegation — provide feature description, DoD checklist, and relevant code paths when assigning.
+
+## Quality Gates
+
+Each feature must pass through Reviewer and QA gates before completion. The gate order is: Developer completes → Reviewer reviews → QA verifies.
+
+### Gate Result Handling
+
+| Reviewer | QA | Action |
+|----------|-----|--------|
+| Pass | Pass | Feature complete |
+| Pass | Fail | QA notifies Developer to fix → re-run QA |
+| Fail | — | Reviewer notifies Developer to fix → re-run Review |
+| 2+ consecutive failures | — | May re-assign or spawn new agent |
+
+### Feature Completion Rubric
+
+All checks must pass:
+
+| Check | Question |
+|-------|----------|
+| Committed | Code committed? |
+| Tests | Tests pass (with test output attached)? |
+| Review | Reviewer approved? |
+| QA | QA verified from user perspective? |
+| Docs | Related documentation updated (if needed)? |
 
 ## Definition
 
@@ -93,22 +154,23 @@ For each feature, assign tasks to team members with following guidelines:
     <step>3. <execute name="active-skills">$overview</execute> to identify and activate necessary skills for the task.</step>
     <step>4. create a team to working on the subtasks</step>
     <step>5. aggregate subtasks by feature, set $features</step>
+    <step>6. prioritize $features by value, risk, and dependencies — process highest priority first</step>
     <loop for="feature in $features">
-        <step>6. assign $feature to the team</step>
-        <loop for="member in team">
-            <step>7. assign task "$role responsibility for $feature" to $member according to their role</step>
-            <condition if="skill available for $member">
-                <step>8. use Skill($skill) before starting the task</step>
-            </condition>
-            <step>9. delegate to $member via SendMessage with clear deliverables, acceptance criteria, and relevant context for $feature</step>
-        </loop>
-        <step>10. wait for members to report back via message (do NOT poll or check status)</step>
-        <condition if="member reports blocker">
-            <step>11. coordinate resolution, then let member continue</step>
+        <step>7. check member feature counts, rotate members at limit per Member Lifecycle rules</step>
+        <step>8. assign $feature to team members per Delegation Checklist</step>
+        <condition if="skill available for assigned member">
+            <step>9. use Skill($skill) before starting the task</step>
         </condition>
-        <step>12. confirm completed results for $feature</step>
+        <step>10. delegate to members via SendMessage — members may communicate peer-to-peer within the feature</step>
+        <step>11. wait for members to report back via message (do NOT poll or check status)</step>
+        <condition if="member reports blocker">
+            <step>12. coordinate resolution — if member remains blocked after reasonable attempts, may re-assign or spawn new agent</step>
+        </condition>
+        <step>13. run Quality Gates: Developer → Reviewer → QA, handle results per Gate Result Handling table</step>
+        <step>14. confirm $feature against Feature Completion Rubric, all checks must pass</step>
+        <step>15. update member feature counts</step>
     </loop>
-    <step>13. compile final results and deliverables.</step>
+    <step>16. compile final results and deliverables.</step>
     <return>Final deliverables and report on the completed task.</return>
 </procedure>
 
