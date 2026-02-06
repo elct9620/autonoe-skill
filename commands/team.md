@@ -9,7 +9,7 @@ allowed-tools: Read, Grep, Glob, Bash(git status:*), Bash(git log:*), Bash(git d
 
 The `<execute name="main">ARGUMENTS</execute>` is entry point for this command.
 
-## Expierimental
+## Experimental
 
 This command is designed to use Claude Code's Agent Team feature to work as a team, if team work is not available stop immediately and inform the user.
 
@@ -37,6 +37,14 @@ Select roles based on feature type. Spawn required roles first, then add optiona
 | Major feature / new project     | Architect, Developer, Reviewer, QA    | Designer, Documenter        |
 | UI feature                      | Developer, Designer, Reviewer, QA     | Documenter                  |
 
+### Optional Role Triggers
+
+| Optional Role | Add When |
+|---------------|----------|
+| Architect | Feature changes > 3 modules or introduces new pattern |
+| Designer | Feature has user-visible UI changes |
+| Documenter | Feature changes public API or user-facing behavior |
+
 ## Skills
 
 Before starting the task, review available skills for current environment and assign correct skills to each team member to maximize efficiency.
@@ -47,12 +55,14 @@ Before starting the task, review available skills for current environment and as
 
 Each team member should focus on their own area of expertise, but collaboration and communication are key to ensure the task is completed successfully.
 
-When breaking down the task, consider the following aspects:
+Verify each subtask against the following principles:
 
-- Each subtask should be clearly defined with deliverable outcomes.
-- Prefer keeping original assignments, but when a member is blocked and reasonable attempts have failed, re-assign or spawn a new agent.
-- Delivery early and often, with regular check-ins to ensure progress is being made.
-- Minimize dependencies between subtasks to avoid bottlenecks, work as Kanban style.
+| Principle | Verification |
+|-----------|-------------|
+| Deliverable clarity | Does each subtask name its output artifact? |
+| Assignment stability | Is re-assignment only via blocker resolution? |
+| Incremental delivery | Can each subtask be verified independently? |
+| Minimal coupling | Does each subtask touch at most 2 modules? |
 
 For example, create "RD: Feature X", "QA: Feature X", "Doc: Feature X" for feature X, don't create generic tasks like "Implement Feature X".
 
@@ -68,6 +78,17 @@ A single feature should be completable within one member's context budget. If a 
 
 Each split feature must deliver independent value — no partial features that only work when combined.
 
+### Feature Prioritization
+
+| Factor | High Priority Signal |
+|--------|---------------------|
+| Dependencies | Other features depend on this one |
+| Risk | Touches shared or unfamiliar code |
+| Value | Core user flow, not edge case |
+| Readiness | Passes all Definition of Ready checks |
+
+Process highest priority first. When tied, prefer the feature that unblocks others.
+
 ## Task Assignment
 
 For each feature, assign tasks to team members with following guidelines:
@@ -77,6 +98,14 @@ For each feature, assign tasks to team members with following guidelines:
 - Escalate to team lead only for cross-feature impacts or major blockers.
 - All delegation and coordination uses SendMessage only. Do NOT write `.autonoe-note.md` — that file is for the single-agent `autonoe-plan` workflow, not for teams.
 - After delegating, wait for members to report via message. Do NOT poll — member idle is normal.
+
+### Blocker Resolution
+
+| Attempts | Action |
+|----------|--------|
+| 1st | Member retries with different approach |
+| 2nd | Pair with another member on same feature |
+| 3rd | Escalate: re-assign or spawn new agent |
 
 ### Communication Routing
 
@@ -170,7 +199,7 @@ After each feature completes, review remaining features and adjust the backlog a
     <loop for="aspect in ['Requirements', 'Design', 'Implementation', 'Testing', 'Documentation']" parallel="true">
         <step>1. use `git log` to gather relevant commit history related to the task.</step>
         <step>2. use `git diff` to identify recent changes that may impact the task.</step>
-        <step>3. explode the codebase to understand the current structure and components.</step>
+        <step>3. explore the codebase to understand the current structure and components.</step>
         <step>4. summarize findings related to the aspect</step>
     </loop>
     <return>Summary of findings for each aspect of the task.</return>
@@ -179,9 +208,9 @@ After each feature completes, review remaining features and adjust the backlog a
 <function name="task_breakdown">
     <description>Break down the main task into smaller, manageable subtasks.</description>
     <parameter name="overview" type="string" required="true">The overview of the task obtained from the overview function.</parameter>
-    <step>1. analyze the the overview to identify key components and requirements.</step>
-    <step>2. create a list of tasks needed to complete the overall task.</step>
-    <step>3. review with breakdown rules to ensure all aspects are covered.</step>
+    <step>1. analyze the overview to identify key components and requirements.</step>
+    <step>2. create subtasks per Task Breakdown verification table, apply Feature Sizing rules to split oversized items.</step>
+    <step>3. validate each subtask against Feature Readiness checks — refine any that fail.</step>
     <return>List of subtasks with descriptions.</return>
 </function>
 
@@ -204,6 +233,28 @@ After each feature completes, review remaining features and adjust the backlog a
     <return>Updated $features list with adjustments applied.</return>
 </function>
 
+<function name="member-rotation">
+    <description>Check member feature counts and rotate members at limit per Member Lifecycle rules.</description>
+    <step>1. check each member's completed feature count against Member Lifecycle limits.</step>
+    <step>2. for members at limit: obtain summary, send shutdown, spawn replacement per Context Handoff layers.</step>
+</function>
+
+<function name="feature-assignment">
+    <description>Assign a feature to team members per Delegation Checklist and activate skills.</description>
+    <parameter name="feature" type="string" required="true">The feature to assign.</parameter>
+    <step>1. verify assignment against Delegation Checklist (Deliverable, Context, DoD).</step>
+    <step>2. activate matching skills for assigned members per active-skills result.</step>
+    <step>3. delegate via SendMessage — members may communicate peer-to-peer within the feature.</step>
+</function>
+
+<function name="quality-gate">
+    <description>Run quality gate sequence and confirm feature completion.</description>
+    <parameter name="feature" type="string" required="true">The feature to verify.</parameter>
+    <step>1. run gate sequence: Developer → Reviewer → QA, handle results per Gate Result Handling table.</step>
+    <step>2. confirm feature against Feature Completion Rubric — all checks must pass.</step>
+    <step>3. update member feature counts.</step>
+</function>
+
 <procedure name="main">
     <parameter name="task_description" type="string" required="true">The description of the task to be completed by the team.</parameter>
     <step>1. <execute name="overview">$task_description</execute> to gather initial insights about the task.</step>
@@ -211,25 +262,19 @@ After each feature completes, review remaining features and adjust the backlog a
     <step>3. <execute name="active-skills">$overview</execute> to identify and activate necessary skills for the task.</step>
     <step>4. create a team per Team Composition guidelines</step>
     <step>5. aggregate subtasks by feature, set $features</step>
-    <step>6. prioritize $features by value, risk, and dependencies — process highest priority first</step>
+    <step>6. prioritize $features per Feature Prioritization table — process highest priority first</step>
     <step>7. validate each feature against Feature Readiness — refine any that fail</step>
     <loop for="feature in $features">
-        <step>8. check member feature counts, rotate members at limit per Member Lifecycle rules</step>
-        <step>9. assign $feature to team members per Delegation Checklist and Team Composition</step>
-        <condition if="skill available for assigned member">
-            <step>10. use Skill($skill) before starting the task</step>
-        </condition>
-        <step>11. delegate to members via SendMessage — members may communicate peer-to-peer within the feature</step>
-        <step>12. wait for members to report back via message (do NOT poll or check status)</step>
+        <step>8. <execute name="member-rotation"/> per Member Lifecycle rules</step>
+        <step>9. <execute name="feature-assignment">$feature</execute> per Delegation Checklist</step>
+        <step>10. wait for members to report back via message (do NOT poll or check status)</step>
         <condition if="member reports blocker">
-            <step>13. coordinate resolution — if member remains blocked after reasonable attempts, may re-assign or spawn new agent</step>
+            <step>11. resolve per Blocker Resolution table</step>
         </condition>
-        <step>14. run Quality Gates: Developer → Reviewer → QA, handle results per Gate Result Handling table</step>
-        <step>15. confirm $feature against Feature Completion Rubric — all checks including Integration and Value must pass</step>
-        <step>16. update member feature counts</step>
-        <step>17. <execute name="backlog-refinement">$feature, $features</execute> to review remaining features per Backlog Refinement rules</step>
+        <step>12. <execute name="quality-gate">$feature</execute> — all Feature Completion checks must pass</step>
+        <step>13. <execute name="backlog-refinement">$feature, $features</execute></step>
     </loop>
-    <step>18. compile final results and deliverables.</step>
+    <step>14. compile final results and deliverables.</step>
     <return>Final deliverables and report on the completed task.</return>
 </procedure>
 
