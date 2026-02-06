@@ -51,6 +51,7 @@ For each feature, assign tasks to team members with following guidelines:
 
 - Co-work with other members, including pair programming, joint reviews, and collaborative testing.
 - Only report progress and blockers to team lead, avoid unnecessary communication.
+- After handoff, wait for members to report via message. Do NOT poll — member idle is normal.
 
 ## Definition
 
@@ -98,12 +99,15 @@ For each feature, assign tasks to team members with following guidelines:
             <condition if="skill available for $member">
                 <step>8. use Skill($skill) before starting the task</step>
             </condition>
-            <step>9. send message to $member to handoff the task for $feature future action</step>
+            <step>9. send handoff message to $member with clear deliverables for $feature</step>
         </loop>
-        <step>10. co-work on $feature until completed, use message communication to resolve issues between members</step>
-        <step>11. report progress and blockers to team lead</step>
+        <step>10. wait for members to report back via message (do NOT poll or check status)</step>
+        <condition if="member reports blocker">
+            <step>11. coordinate resolution, then let member continue</step>
+        </condition>
+        <step>12. confirm completed results for $feature</step>
     </loop>
-    <step>12. compile final results and deliverables.</step>
+    <step>13. compile final results and deliverables.</step>
     <return>Final deliverables and report on the completed task.</return>
 </procedure>
 
