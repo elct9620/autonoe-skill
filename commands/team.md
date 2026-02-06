@@ -26,6 +26,17 @@ According to the task necessary, pick the appropriate members from the following
 | Documenter        | Creating and maintaining documentation.              | When relevant code is changed, documentation must be updated accordingly.                 |
 | Reviewer          | Responsible for reviewing code and ensuring quality. | Reviews after Developer commits, before QA final verification.                            |
 
+### Team Composition
+
+Select roles based on feature type. Spawn required roles first, then add optional roles as needed.
+
+| Feature Type                    | Required                              | Optional                    |
+|---------------------------------|---------------------------------------|-----------------------------|
+| Code change                     | Developer, Reviewer                   | QA, Documenter              |
+| New feature                     | Developer, Reviewer, QA               | Architect, Designer, Documenter |
+| Major feature / new project     | Architect, Developer, Reviewer, QA    | Designer, Documenter        |
+| UI feature                      | Developer, Designer, Reviewer, QA     | Documenter                  |
+
 ## Skills
 
 Before starting the task, review available skills for current environment and assign correct skills to each team member to maximize efficiency.
@@ -44,6 +55,18 @@ When breaking down the task, consider the following aspects:
 - Minimize dependencies between subtasks to avoid bottlenecks, work as Kanban style.
 
 For example, create "RD: Feature X", "QA: Feature X", "Doc: Feature X" for feature X, don't create generic tasks like "Implement Feature X".
+
+### Feature Sizing
+
+A single feature should be completable within one member's context budget. If a feature exceeds this limit, split it before assigning.
+
+| Split Strategy          | When to Use                                              |
+|-------------------------|----------------------------------------------------------|
+| By user journey step    | Feature spans multiple user-facing interactions          |
+| By data entity          | Feature touches multiple independent data models         |
+| By happy path vs edge case | Core behavior and error handling can be delivered separately |
+
+Each split feature must deliver independent value — no partial features that only work when combined.
 
 ## Task Assignment
 
@@ -90,6 +113,17 @@ Three layers for new member onboarding:
 2. Git history — new member reviews `git log`/`git diff` to understand prior changes.
 3. Team lead delegation — provide feature description, DoD checklist, and relevant code paths when assigning.
 
+## Feature Readiness
+
+Before a feature enters the work queue, it must pass the Definition of Ready. Features that fail any check must be refined first.
+
+| Check     | Question                                                                 |
+|-----------|--------------------------------------------------------------------------|
+| Clarity   | Are requirements unambiguous with no open questions?                     |
+| Sized     | Is the feature completable within the context budget?                    |
+| Unblocked | Are dependencies on other features or external resources resolved?       |
+| Acceptance| Are feature-level acceptance criteria defined?                           |
+
 ## Quality Gates
 
 Each feature must pass through Reviewer and QA gates before completion. The gate order is: Developer completes → Reviewer reviews → QA verifies.
@@ -114,6 +148,19 @@ All checks must pass:
 | Review | Reviewer approved? |
 | QA | QA verified from user perspective? |
 | Docs | Related documentation updated (if needed)? |
+| Integration | Full test suite passes after merging (no regressions)? |
+| Value | Does the completed feature match the original requirement from the overview? |
+
+## Backlog Refinement
+
+After each feature completes, review remaining features and adjust the backlog as needed.
+
+| Action        | Trigger                                                        |
+|---------------|----------------------------------------------------------------|
+| Re-prioritize | Completed feature reveals new risk or dependency               |
+| Split         | A pending feature turns out larger than expected               |
+| Remove        | A pending feature becomes unnecessary based on new information |
+| Add           | New requirements discovered during implementation              |
 
 ## Definition
 
@@ -147,30 +194,42 @@ All checks must pass:
     <return>List of active skills necessary for the task.</return>
 </function>
 
+<function name="backlog-refinement">
+    <description>Review remaining features after a feature completes and adjust the backlog per Backlog Refinement rules.</description>
+    <parameter name="completed_feature" type="string" required="true">The feature that was just completed.</parameter>
+    <parameter name="remaining_features" type="list" required="true">The list of remaining features in the backlog.</parameter>
+    <step>1. evaluate each remaining feature against Backlog Refinement triggers (re-prioritize, split, remove, add).</step>
+    <step>2. apply Feature Sizing rules to any feature flagged for split.</step>
+    <step>3. validate adjusted features against Feature Readiness checks.</step>
+    <return>Updated $features list with adjustments applied.</return>
+</function>
+
 <procedure name="main">
     <parameter name="task_description" type="string" required="true">The description of the task to be completed by the team.</parameter>
     <step>1. <execute name="overview">$task_description</execute> to gather initial insights about the task.</step>
     <step>2. <execute name="task_breakdown">$overview</execute> to create a detailed plan of action.</step>
     <step>3. <execute name="active-skills">$overview</execute> to identify and activate necessary skills for the task.</step>
-    <step>4. create a team to working on the subtasks</step>
+    <step>4. create a team per Team Composition guidelines</step>
     <step>5. aggregate subtasks by feature, set $features</step>
     <step>6. prioritize $features by value, risk, and dependencies — process highest priority first</step>
+    <step>7. validate each feature against Feature Readiness — refine any that fail</step>
     <loop for="feature in $features">
-        <step>7. check member feature counts, rotate members at limit per Member Lifecycle rules</step>
-        <step>8. assign $feature to team members per Delegation Checklist</step>
+        <step>8. check member feature counts, rotate members at limit per Member Lifecycle rules</step>
+        <step>9. assign $feature to team members per Delegation Checklist and Team Composition</step>
         <condition if="skill available for assigned member">
-            <step>9. use Skill($skill) before starting the task</step>
+            <step>10. use Skill($skill) before starting the task</step>
         </condition>
-        <step>10. delegate to members via SendMessage — members may communicate peer-to-peer within the feature</step>
-        <step>11. wait for members to report back via message (do NOT poll or check status)</step>
+        <step>11. delegate to members via SendMessage — members may communicate peer-to-peer within the feature</step>
+        <step>12. wait for members to report back via message (do NOT poll or check status)</step>
         <condition if="member reports blocker">
-            <step>12. coordinate resolution — if member remains blocked after reasonable attempts, may re-assign or spawn new agent</step>
+            <step>13. coordinate resolution — if member remains blocked after reasonable attempts, may re-assign or spawn new agent</step>
         </condition>
-        <step>13. run Quality Gates: Developer → Reviewer → QA, handle results per Gate Result Handling table</step>
-        <step>14. confirm $feature against Feature Completion Rubric, all checks must pass</step>
-        <step>15. update member feature counts</step>
+        <step>14. run Quality Gates: Developer → Reviewer → QA, handle results per Gate Result Handling table</step>
+        <step>15. confirm $feature against Feature Completion Rubric — all checks including Integration and Value must pass</step>
+        <step>16. update member feature counts</step>
+        <step>17. <execute name="backlog-refinement">$feature, $features</execute> to review remaining features per Backlog Refinement rules</step>
     </loop>
-    <step>16. compile final results and deliverables.</step>
+    <step>18. compile final results and deliverables.</step>
     <return>Final deliverables and report on the completed task.</return>
 </procedure>
 
