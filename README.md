@@ -17,11 +17,15 @@ Or install it to your global plugins directory and it will be loaded automatical
 
 ## Usage
 
-### 1. Create Specification
+### Spec-driven Planning
+
+Use specification files to drive task planning and execution.
+
+#### 1. Create Specification
 
 Create a `SPEC.md` file in your project directory containing the detailed specifications for what you want to build.
 
-### 2. Generate Task Plan
+#### 2. Generate Task Plan
 
 Run the planning command:
 
@@ -44,7 +48,7 @@ The planner will:
 - Break down the spec into fine-grained, testable tasks
 - Set up task dependencies
 
-### 3. Review and Execute
+#### 3. Review and Execute
 
 After planning:
 1. **Review** the generated task list
@@ -56,6 +60,20 @@ After planning:
    - Leave handoff notes for the next session
 
 Each task represents user-facing value that can be independently verified and tested.
+
+### Team Collaboration (Experimental)
+
+Leverage Claude Code's Agent Team feature to coordinate multiple roles for task completion.
+
+```bash
+/autonoe:team <task description>
+```
+
+The command automatically:
+- Gathers an overview of the task from the codebase
+- Breaks it down into subtasks grouped by feature
+- Assigns subtasks to team members (Architect, Developer, QA, Designer, Documenter, Reviewer) based on their expertise
+- Coordinates collaboration until completion
 
 ## License
 
