@@ -51,7 +51,8 @@ For each feature, assign tasks to team members with following guidelines:
 
 - Co-work with other members, including pair programming, joint reviews, and collaborative testing.
 - Only report progress and blockers to team lead, avoid unnecessary communication.
-- After handoff, wait for members to report via message. Do NOT poll — member idle is normal.
+- All delegation and coordination uses SendMessage only. Do NOT write `.autonoe-note.md` — that file is for the single-agent `autonoe-plan` workflow, not for teams.
+- After delegating, wait for members to report via message. Do NOT poll — member idle is normal.
 
 ## Definition
 
@@ -99,7 +100,7 @@ For each feature, assign tasks to team members with following guidelines:
             <condition if="skill available for $member">
                 <step>8. use Skill($skill) before starting the task</step>
             </condition>
-            <step>9. send handoff message to $member with clear deliverables for $feature</step>
+            <step>9. delegate to $member via SendMessage with clear deliverables, acceptance criteria, and relevant context for $feature</step>
         </loop>
         <step>10. wait for members to report back via message (do NOT poll or check status)</step>
         <condition if="member reports blocker">
