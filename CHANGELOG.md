@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.0](https://github.com/elct9620/autonoe-skill/compare/v0.2.0...v0.3.0) (2026-02-06)
+
+
+### Features
+
+* **autonoe-plan:** add completion rubrics for each step ([b50dbb1](https://github.com/elct9620/autonoe-skill/commit/b50dbb108581da71daeca721392a909b7095202b))
+* **commands:** add team command for agile team collaboration ([0f22272](https://github.com/elct9620/autonoe-skill/commit/0f22272f8af96811483706aa71ef7870fa559555))
+
 ## [0.2.0](https://github.com/elct9620/autonoe-skill/compare/v0.1.0...v0.2.0) (2026-01-25)
 
 
