@@ -21,7 +21,7 @@ According to the task necessary, pick the appropriate members from the following
 |-------------------|------------------------------------------------------|-------------------------------------------------------------------------------------------|
 | Architect         | Designing the overall structure and plan.            | Assist before development starts, e.g. new project or major feature.                      |
 | Developer         | Writing and maintaining code.                        | Test should be included in development phase.                                             |
-| Quality Assurance | Ensuring the quality of outcomes.                    | QA must test E2E in early stage, reject RD even unit test pass but cannot test like user. |
+| Quality Assurance | Ensuring the quality of outcomes.                    | QA must verify the deliverable works (build, run, or operate per project type), then test E2E from user perspective — reject even if unit tests pass but deliverable is unusable. |
 | Designer          | Creating UI/UX designs.                              | Follow design system if available.                                                        |
 | Documenter        | Creating and maintaining documentation.              | When relevant code is changed, documentation must be updated accordingly.                 |
 | Reviewer          | Responsible for reviewing code and ensuring quality. | Reviews after Developer commits, before QA final verification.                            |
@@ -142,7 +142,22 @@ For each feature, assign tasks to team members with following guidelines:
 | Deliverable | Expected deliverable is clear? |
 | Context | Sufficient context provided (file paths, prior summaries)? |
 | DoD | Includes Definition of Done checklist? |
-| Skills | Role-appropriate skills included per Role-Skill Affinity, with explicit instruction that usage is required? |
+| Skills | Delegation follows Delegation Message Template — skills with exact Skill tool invocation syntax, deliverable verification method, and completion report format included? |
+
+### Delegation Message Template
+
+Each delegation message MUST follow this structure:
+
+1. **Task**: deliverable description and acceptance criteria
+2. **Context**: relevant file paths, prior work summaries
+3. **Mandatory Skills** (pre-work): list each assigned skill with exact invocation syntax
+   - Format: `Before [activity], invoke Skill tool: skill="[skill-name]"`
+   - Directive: "You MUST call each listed Skill BEFORE starting the related work. This is a prerequisite, not a suggestion."
+4. **Deliverable Verification**: how to verify the deliverable works (determined during overview)
+5. **Completion Report Format**: member must report back with:
+   - Skills invoked (skill name + one-line outcome for each)
+   - Deliverable verification result
+   - Acceptance criteria verification
 
 ## Member Lifecycle
 
@@ -198,7 +213,8 @@ All checks must pass:
 | Docs | Related documentation updated (if needed)? |
 | Integration | Full test suite passes after merging (no regressions)? |
 | Value | Does the completed feature match the original requirement from the overview? |
-| Skills | Were all assigned skills invoked during the feature work? |
+| Deliverable | Is the deliverable verified to work (build/run/operate per project verification method)? |
+| Skills | Did member report each assigned skill invocation with skill name and outcome? |
 
 ## Backlog Refinement
 
@@ -222,7 +238,8 @@ After each feature completes, review remaining features and adjust the backlog a
         <step>3. explore the codebase to understand the current structure and components.</step>
         <step>4. summarize findings related to the aspect</step>
     </loop>
-    <return>Summary of findings for each aspect of the task.</return>
+    <step>5. identify the project's deliverable verification method (e.g., build command, run command, load test, manual operation) based on project type and tooling.</step>
+    <return>Summary of findings for each aspect of the task, including the deliverable verification method.</return>
 </function>
 
 <function name="task_breakdown">
@@ -263,15 +280,16 @@ After each feature completes, review remaining features and adjust the backlog a
     <description>Assign a feature to team members per Delegation Checklist and activate skills.</description>
     <parameter name="feature" type="string" required="true">The feature to assign.</parameter>
     <step>1. verify assignment against Delegation Checklist (Deliverable, Context, DoD, Skills).</step>
-    <step>2. delegate via SendMessage — for each member, select skills from active-skills result whose descriptions match the member's role per Role-Skill Affinity table, then include those skills with invocation instructions and an explicit directive that assigned skills are required, not optional. Members may communicate peer-to-peer within the feature.</step>
+    <step>2. delegate via SendMessage following the Delegation Message Template — for each member, select skills from active-skills result whose descriptions match the member's role per Role-Skill Affinity table. Members may communicate peer-to-peer within the feature.</step>
 </function>
 
 <function name="quality-gate">
     <description>Run quality gate sequence and confirm feature completion.</description>
     <parameter name="feature" type="string" required="true">The feature to verify.</parameter>
     <step>1. run gate sequence: Developer → Reviewer → QA, handle results per Gate Result Handling table.</step>
-    <step>2. confirm feature against Feature Completion Rubric — all checks must pass.</step>
-    <step>3. update member feature counts.</step>
+    <step>2. verify completion reports — each member must have reported: (a) skill invocations with name and outcome per skill, (b) deliverable verification result. If missing, request member to supplement before proceeding.</step>
+    <step>3. confirm feature against Feature Completion Rubric — all checks must pass.</step>
+    <step>4. update member feature counts.</step>
 </function>
 
 <procedure name="main">
@@ -293,7 +311,8 @@ After each feature completes, review remaining features and adjust the backlog a
         <step>12. <execute name="quality-gate">$feature</execute> — all Feature Completion checks must pass</step>
         <step>13. <execute name="backlog-refinement">$feature, $features</execute></step>
     </loop>
-    <step>14. compile final results and deliverables.</step>
+    <step>14. final deliverable verification: verify the entire project's deliverable works using the method identified in overview. If verification fails, create a fix task and assign to an available Developer, then re-verify.</step>
+    <step>15. compile final results and deliverables.</step>
     <return>Final deliverables and report on the completed task.</return>
 </procedure>
 
