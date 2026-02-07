@@ -59,7 +59,7 @@ Use the highest priority source available. If no user instruction or project set
 
 ## Skills
 
-Before starting the task, review and activate available skills for each team member to maximize efficiency.
+Before starting the task, review and activate available skills for each team member. Assigned skills are mandatory — team members must use them during their work, not treat them as optional suggestions.
 
 ### Role-Skill Affinity
 
@@ -142,7 +142,7 @@ For each feature, assign tasks to team members with following guidelines:
 | Deliverable | Expected deliverable is clear? |
 | Context | Sufficient context provided (file paths, prior summaries)? |
 | DoD | Includes Definition of Done checklist? |
-| Skills | Role-appropriate skills from active-skills result included per Role-Skill Affinity? |
+| Skills | Role-appropriate skills included per Role-Skill Affinity, with explicit instruction that usage is required? |
 
 ## Member Lifecycle
 
@@ -198,6 +198,7 @@ All checks must pass:
 | Docs | Related documentation updated (if needed)? |
 | Integration | Full test suite passes after merging (no regressions)? |
 | Value | Does the completed feature match the original requirement from the overview? |
+| Skills | Were all assigned skills invoked during the feature work? |
 
 ## Backlog Refinement
 
@@ -262,7 +263,7 @@ After each feature completes, review remaining features and adjust the backlog a
     <description>Assign a feature to team members per Delegation Checklist and activate skills.</description>
     <parameter name="feature" type="string" required="true">The feature to assign.</parameter>
     <step>1. verify assignment against Delegation Checklist (Deliverable, Context, DoD, Skills).</step>
-    <step>2. delegate via SendMessage — for each member, select skills from active-skills result whose descriptions match the member's role per Role-Skill Affinity table, then include those skills with invocation instructions. Members may communicate peer-to-peer within the feature.</step>
+    <step>2. delegate via SendMessage — for each member, select skills from active-skills result whose descriptions match the member's role per Role-Skill Affinity table, then include those skills with invocation instructions and an explicit directive that assigned skills are required, not optional. Members may communicate peer-to-peer within the feature.</step>
 </function>
 
 <function name="quality-gate">
