@@ -61,6 +61,21 @@ Use the highest priority source available. If no user instruction or project set
 
 Before starting the task, review and activate available skills for each team member to maximize efficiency.
 
+### Role-Skill Affinity
+
+When distributing skills to team members, match skills by role affinity:
+
+| Role              | Skill Affinity (keywords)                          |
+|-------------------|-----------------------------------------------------|
+| Architect         | design, architecture, planning, principles          |
+| Developer         | coding, write, testing, implementation              |
+| Quality Assurance | testing, verification, quality                      |
+| Designer          | design, UI, UX, visual                              |
+| Documenter        | documentation, writing                              |
+| Reviewer          | review, principles, refactoring, quality, security  |
+
+A single skill may match multiple roles. Include all matching skills for each member during delegation.
+
 ## Task Breakdown
 
 Verify each subtask against the following principles:
@@ -127,7 +142,7 @@ For each feature, assign tasks to team members with following guidelines:
 | Deliverable | Expected deliverable is clear? |
 | Context | Sufficient context provided (file paths, prior summaries)? |
 | DoD | Includes Definition of Done checklist? |
-| Skills | Relevant skills from active-skills result included in message? |
+| Skills | Role-appropriate skills from active-skills result included per Role-Skill Affinity? |
 
 ## Member Lifecycle
 
@@ -224,7 +239,7 @@ After each feature completes, review remaining features and adjust the backlog a
     <step>1. discover available skills from system-reminder</step>
     <step>2. analyze the overview with available skills to determine relevance</step>
     <step>3. select the skills that are most relevant to the feature implementation</step>
-    <return>List of active skills necessary for the task.</return>
+    <return>List of active skills with their names, descriptions, and invocation instructions.</return>
 </function>
 
 <function name="backlog-refinement">
@@ -247,7 +262,7 @@ After each feature completes, review remaining features and adjust the backlog a
     <description>Assign a feature to team members per Delegation Checklist and activate skills.</description>
     <parameter name="feature" type="string" required="true">The feature to assign.</parameter>
     <step>1. verify assignment against Delegation Checklist (Deliverable, Context, DoD, Skills).</step>
-    <step>2. delegate via SendMessage — include matched skills with invocation instructions so each member knows which skills to use. Members may communicate peer-to-peer within the feature.</step>
+    <step>2. delegate via SendMessage — for each member, select skills from active-skills result whose descriptions match the member's role per Role-Skill Affinity table, then include those skills with invocation instructions. Members may communicate peer-to-peer within the feature.</step>
 </function>
 
 <function name="quality-gate">
