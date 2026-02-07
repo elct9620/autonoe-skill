@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.5.0](https://github.com/elct9620/autonoe-skill/compare/v0.4.0...v0.5.0) (2026-02-07)
+
+
+### Features
+
+* **commands:** add agent type precedence for team member spawning ([cab9045](https://github.com/elct9620/autonoe-skill/commit/cab904532096d461dbec973dee09685454a1bb98))
+* **commands:** add role-skill affinity matching to team delegation ([6b48467](https://github.com/elct9620/autonoe-skill/commit/6b48467916eb2c4e50d27d8115854d307be4e641))
+* **commands:** include skill instructions in team delegation messages ([4938bc3](https://github.com/elct9620/autonoe-skill/commit/4938bc3a35ec920fe4b0d166c608b3065a53967a))
+
 ## [0.4.0](https://github.com/elct9620/autonoe-skill/compare/v0.3.0...v0.4.0) (2026-02-06)
 
 
