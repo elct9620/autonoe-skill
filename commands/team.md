@@ -28,14 +28,16 @@ According to the task necessary, pick the appropriate members from the following
 
 ### Team Composition
 
-Select roles based on feature type. Spawn required roles first, then add optional roles as needed.
+Spawn each role ONCE unless noted. Reviewer and QA persist across all deliverables; other roles may be dismissed after their work completes.
 
-| Feature Type                    | Required                              | Optional                    |
-|---------------------------------|---------------------------------------|-----------------------------|
-| Code change                     | Developer, Reviewer                   | QA, Documenter              |
-| New feature                     | Developer, Reviewer, QA               | Architect, Designer, Documenter |
-| Major feature / new project     | Architect, Developer, Reviewer, QA    | Designer, Documenter        |
-| UI feature                      | Developer, Designer, Reviewer, QA     | Documenter                  |
+| Feature Type                    | Required                                    | Optional                    |
+|---------------------------------|---------------------------------------------|-----------------------------|
+| Code change                     | Developer (1-2)                             | Reviewer, QA, Architect, Documenter |
+| New feature                     | Developer (1-2)                             | Architect, Reviewer, QA, Designer, Documenter |
+| Major feature / new project     | Developer (1-2), Reviewer (1), QA (1)       | Architect, Designer, Documenter |
+| UI feature                      | Developer (1-2), Designer (1)               | Architect, Reviewer, QA, Documenter |
+
+Developer count (1 or 2) is decided by team lead based on task complexity and module coupling.
 
 ### Agent Type
 
@@ -86,6 +88,7 @@ Verify each subtask against the following principles:
 | Assignment stability | Is re-assignment only via blocker resolution? |
 | Incremental delivery | Can each subtask be verified independently? |
 | Minimal coupling | Does each subtask touch at most 2 modules? |
+| Commit atomicity | Can this subtask be committed as a single, non-breaking change? |
 
 For example, create "RD: Feature X", "QA: Feature X", "Doc: Feature X" for feature X, don't create generic tasks like "Implement Feature X".
 
@@ -112,12 +115,25 @@ Each split feature must deliver independent value.
 
 Process highest priority first. When tied, prefer the feature that unblocks others.
 
+## Developer Collaboration
+
+Team lead decides the collaboration mode for each deliverable:
+
+| Mode | When to Use | Description |
+|------|-------------|-------------|
+| Solo | Task is small or isolated to one module | One Developer handles the full deliverable |
+| Split | Two independent sub-tasks within a deliverable | Each Developer takes a part, merge when both complete |
+| Pair | Task is complex or touches unfamiliar code | Both Developers collaborate on the same deliverable |
+
+When using Split mode, both parts must be complete before the deliverable enters Review. Developers should communicate actively to avoid conflicts.
+
 ## Task Assignment
 
 For each feature, assign tasks to team members with following guidelines:
 
 - All delegation and coordination uses SendMessage only. Do NOT write `.autonoe-note.md` — that file is for the single-agent `autonoe-plan` workflow, not for teams.
 - After delegating, wait for members to report via message. Do NOT poll — member idle is normal.
+- All team members may communicate freely at any time via SendMessage — they do not need to wait for task completion to interact.
 
 ### Blocker Resolution
 
@@ -134,6 +150,8 @@ For each feature, assign tasks to team members with following guidelines:
 | Intra-feature collaboration (bugs, interface, details) | Members communicate directly |
 | Cross-feature impact or major blocker | Escalate to team lead |
 | Gate completion (Review/QA result) | Notify next gate role + team lead |
+| Early feedback (approach, acceptance criteria, design) | Members communicate directly with relevant role |
+| Verification rejection (Review/QA fail) | Notify Developer with specific feedback; team lead monitors |
 
 ### Delegation Checklist
 
@@ -163,6 +181,8 @@ Each delegation message MUST follow this structure:
 
 Each member should handle at most 2 features to prevent context degradation during long-running sessions.
 
+**Persistent roles:** Reviewer and QA persist across all deliverables and are exempt from the rotation limit. Only Developer roles rotate.
+
 | Completed Features | Action |
 |--------------------|--------|
 | < 2 | Assign normally |
@@ -187,18 +207,20 @@ Features must pass all Definition of Ready checks before entering the work queue
 | Unblocked | Are dependencies on other features or external resources resolved?       |
 | Acceptance| Are feature-level acceptance criteria defined?                           |
 
-## Quality Gates
+## Quality Verification
 
-Gate order: Developer → Reviewer → QA.
+Each deliverable is verified immediately after the Developer(s) commit. Verification is continuous — not a batch gate at the end.
 
-### Gate Result Handling
+Gate order per deliverable: Developer commits → Reviewer reviews → QA verifies. A rejected deliverable takes priority over new work — Developer(s) must fix before starting the next deliverable.
+
+### Verification Result Handling
 
 | Reviewer | QA | Action |
 |----------|-----|--------|
-| Pass | Pass | Feature complete |
-| Pass | Fail | QA notifies Developer to fix → re-run QA |
-| Fail | — | Reviewer notifies Developer to fix → re-run Review |
-| 2+ consecutive failures | — | May re-assign or spawn new agent |
+| Pass | Pass | Deliverable complete, proceed to next |
+| Pass | Fail | Developer fixes → re-commit → restart verification from Review |
+| Fail | — | Developer fixes → re-commit → restart verification from Review |
+| 2+ consecutive failures at any gate | — | Escalate per Blocker Resolution table |
 
 ### Feature Completion Rubric
 
@@ -283,13 +305,29 @@ After each feature completes, review remaining features and adjust the backlog a
     <step>2. delegate via SendMessage following the Delegation Message Template — for each member, select skills from active-skills result whose descriptions match the member's role per Role-Skill Affinity table. Members may communicate peer-to-peer within the feature.</step>
 </function>
 
-<function name="quality-gate">
-    <description>Run quality gate sequence and confirm feature completion.</description>
-    <parameter name="feature" type="string" required="true">The feature to verify.</parameter>
-    <step>1. run gate sequence: Developer → Reviewer → QA, handle results per Gate Result Handling table.</step>
-    <step>2. verify completion reports — each member must have reported: (a) skill invocations with name and outcome per skill, (b) deliverable verification result. If missing, request member to supplement before proceeding.</step>
-    <step>3. confirm feature against Feature Completion Rubric — all checks must pass.</step>
-    <step>4. update member feature counts.</step>
+<function name="verify-deliverable">
+    <description>Run immediate quality verification loop for a completed deliverable. Skip absent roles.</description>
+    <parameter name="deliverable" type="string" required="true">The deliverable to verify.</parameter>
+    <condition if="Reviewer is present">
+        <step>1. delegate review to Reviewer via SendMessage — provide commit reference and acceptance criteria.</step>
+        <step>2. wait for Reviewer report.</step>
+        <condition if="Reviewer rejects">
+            <step>2a. notify Developer of rejection with Reviewer feedback → Developer fixes and re-commits → go to step 1.</step>
+        </condition>
+    </condition>
+    <condition if="QA is present">
+        <step>3. delegate QA verification via SendMessage — provide deliverable description and acceptance criteria.</step>
+        <step>4. wait for QA report.</step>
+        <condition if="QA rejects">
+            <step>4a. notify Developer of QA rejection with feedback → Developer fixes and re-commits → restart from step 1.</step>
+        </condition>
+    </condition>
+    <condition if="2+ consecutive rejections at any gate">
+        <step>handle per Blocker Resolution table.</step>
+    </condition>
+    <step>5. verify completion reports — each member must have reported: (a) skill invocations with name and outcome per skill, (b) deliverable verification result.</step>
+    <step>6. confirm deliverable against Feature Completion Rubric — skip Review/QA checks for absent roles.</step>
+    <step>7. update member feature counts.</step>
 </function>
 
 <procedure name="main">
@@ -297,19 +335,19 @@ After each feature completes, review remaining features and adjust the backlog a
     <step>1. <execute name="overview">$task_description</execute></step>
     <step>2. <execute name="task_breakdown">$overview</execute></step>
     <step>3. <execute name="active-skills">$overview</execute></step>
-    <step>4. create a team per Team Composition and Agent Type guidelines</step>
-    <step>5. aggregate subtasks by feature, set $features</step>
-    <step>6. prioritize $features per Feature Prioritization table — process highest priority first</step>
-    <step>7. validate each feature against Feature Readiness — refine any that fail</step>
-    <loop for="feature in $features">
-        <step>8. <execute name="member-rotation"/> per Member Lifecycle rules</step>
-        <step>9. <execute name="feature-assignment">$feature</execute> per Delegation Checklist</step>
-        <step>10. wait for members to report back via message (do NOT poll or check status)</step>
-        <condition if="member reports blocker">
+    <step>4. create a team per Team Composition and Agent Type guidelines — spawn selected roles; Reviewer and QA persist if included</step>
+    <step>5. aggregate subtasks into deliverables, set $deliverables — each must be a committable, independently verifiable unit</step>
+    <step>6. prioritize $deliverables per Feature Prioritization table — process highest priority first</step>
+    <step>7. validate each deliverable against Feature Readiness — refine any that fail</step>
+    <loop for="deliverable in $deliverables">
+        <step>8. <execute name="member-rotation"/> per Member Lifecycle rules (persistent roles are exempt)</step>
+        <step>9. <execute name="feature-assignment">$deliverable</execute> — choose collaboration mode (solo/split/pair) per Development Flow guidelines</step>
+        <step>10. wait for Developer(s) to report completion via message (do NOT poll — members communicate freely during development)</step>
+        <condition if="Developer reports blocker">
             <step>11. resolve per Blocker Resolution table</step>
         </condition>
-        <step>12. <execute name="quality-gate">$feature</execute> — all Feature Completion checks must pass</step>
-        <step>13. <execute name="backlog-refinement">$feature, $features</execute></step>
+        <step>12. <execute name="verify-deliverable">$deliverable</execute> — immediate Review then QA; rejections loop back to Developer per Rework Priority</step>
+        <step>13. <execute name="backlog-refinement">$deliverable, $deliverables</execute></step>
     </loop>
     <step>14. final deliverable verification: verify the entire project's deliverable works using the method identified in overview. If verification fails, create a fix task and assign to an available Developer, then re-verify.</step>
     <step>15. compile final results and deliverables.</step>
