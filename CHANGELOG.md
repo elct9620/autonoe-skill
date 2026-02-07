@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.7.0](https://github.com/elct9620/autonoe-skill/compare/v0.6.0...v0.7.0) (2026-02-07)
+
+
+### Features
+
+* **commands:** add delegation message template and deliverable verification to team workflow ([4fd5688](https://github.com/elct9620/autonoe-skill/commit/4fd5688ca2ebf45eed7c417dfd08092c33426422))
+* **commands:** define development flow with continuous quality verification ([3814eff](https://github.com/elct9620/autonoe-skill/commit/3814eff540028c5c56436ccc4241446712d5ef9c))
+
 ## [0.6.0](https://github.com/elct9620/autonoe-skill/compare/v0.5.0...v0.6.0) (2026-02-07)
 
 
