@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/elct9620/autonoe-skill/compare/v0.5.0...v0.6.0) (2026-02-07)
+
+
+### Features
+
+* **commands:** enforce mandatory skill usage in team delegation ([f95e0c0](https://github.com/elct9620/autonoe-skill/commit/f95e0c025dd05b8f31cdfa0894fada07c05dfc01))
+
 ## [0.5.0](https://github.com/elct9620/autonoe-skill/compare/v0.4.0...v0.5.0) (2026-02-07)
 
 
